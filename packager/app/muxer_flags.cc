@@ -24,6 +24,13 @@ ABSL_FLAG(double,
           "this parameter sets the duration of a subsegment; otherwise, "
           "this parameter sets the duration of a segment. Actual segment "
           "durations may not be exactly as requested.");
+ABSL_FLAG(int64_t,
+          segment_size,
+          0,
+          "Target segment size in megabytes (MB). Segments will try to reach "
+          "this size. Can be used together with "
+          "segment_duration - a new segment will be created when either "
+          "condition is met. Set to 0 to disable size-based segmentation.");
 ABSL_FLAG(bool,
           segment_sap_aligned,
           true,

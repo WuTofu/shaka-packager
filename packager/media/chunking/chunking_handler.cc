@@ -95,6 +95,7 @@ Status ChunkingHandler::OnMediaSample(
   DCHECK_GT(time_scale_, 0) << "kStreamInfo should arrive before kMediaSample";
 
   const int64_t timestamp = sample->pts();
+  const int64_t sample_size = static_cast<int64_t>(sample->data_size());
 
   bool started_new_segment = false;
   const bool can_start_new_segment =
@@ -103,8 +104,21 @@ Status ChunkingHandler::OnMediaSample(
     const int64_t segment_index =
         timestamp < cue_offset_ ? 0
                                 : (timestamp - cue_offset_) / segment_duration_;
-    if (!segment_start_time_ ||
-        IsNewSegmentIndex(segment_index, current_segment_index_)) {
+
+    // Check if we should start a new segment based on duration
+    bool should_start_by_duration = !segment_start_time_ ||
+        IsNewSegmentIndex(segment_index, current_segment_index_);
+
+    // Check if we should start a new segment based on size
+    bool should_start_by_size = false;
+    if (chunking_params_.segment_size_in_bytes > 0 && segment_start_time_) {
+      // If adding this sample would exceed the target size, start a new segment
+      if (current_segment_size_ + sample_size >=
+          chunking_params_.segment_size_in_bytes) {
+        should_start_by_size = true;
+      }
+    }
+    if (should_start_by_duration || should_start_by_size) {
       current_segment_index_ = segment_index;
       // Reset subsegment index.
       current_subsegment_index_ = 0;
@@ -113,6 +127,7 @@ Status ChunkingHandler::OnMediaSample(
       segment_start_time_ = timestamp;
       subsegment_start_time_ = timestamp;
       max_segment_time_ = timestamp + sample->duration();
+      current_segment_size_ = 0;  // Reset segment size counter
       started_new_segment = true;
     }
   }
@@ -161,6 +176,10 @@ Status ChunkingHandler::OnMediaSample(
   subsegment_start_time_ = std::min(subsegment_start_time_.value(), timestamp);
   max_segment_time_ =
       std::max(max_segment_time_, timestamp + sample->duration());
+
+  // Track current segment size for size-based segmentation
+  current_segment_size_ += sample_size;
+
   return DispatchMediaSample(kStreamIndex, std::move(sample));
 }
 

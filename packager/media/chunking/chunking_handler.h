@@ -92,6 +92,9 @@ class ChunkingHandler : public MediaHandler {
   // The offset is applied to sample timestamps so a full segment is generated
   // after cue points.
   int64_t cue_offset_ = 0;
+
+  // Track current segment size in bytes for size-based segmentation.
+  int64_t current_segment_size_ = 0;
 };
 
 }  // namespace media

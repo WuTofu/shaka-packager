@@ -16,6 +16,8 @@ struct ChunkingParams {
   /// Subsegment duration in seconds. Should not be larger than the segment
   /// duration.
   double subsegment_duration_in_seconds = 0;
+  /// Target segment size in bytes.
+  int64_t segment_size_in_bytes = 0;
 
   /// Force segments to begin with stream access points. Actual segment duration
   /// may not be exactly what is specified by segment_duration.

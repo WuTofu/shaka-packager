@@ -14,6 +14,7 @@
 
 ABSL_DECLARE_FLAG(double, clear_lead);
 ABSL_DECLARE_FLAG(double, segment_duration);
+ABSL_DECLARE_FLAG(int64_t, segment_size);
 ABSL_DECLARE_FLAG(bool, segment_sap_aligned);
 ABSL_DECLARE_FLAG(double, fragment_duration);
 ABSL_DECLARE_FLAG(bool, fragment_sap_aligned);

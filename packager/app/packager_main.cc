@@ -352,6 +352,9 @@ std::optional<PackagingParams> GetPackagingParams() {
   ChunkingParams& chunking_params = packaging_params.chunking_params;
   chunking_params.segment_duration_in_seconds =
       absl::GetFlag(FLAGS_segment_duration);
+  // Convert MB to bytes (1 MB = 1024 * 1024 bytes)
+  chunking_params.segment_size_in_bytes =
+      absl::GetFlag(FLAGS_segment_size) * 1024 * 1024;
   chunking_params.subsegment_duration_in_seconds =
       absl::GetFlag(FLAGS_fragment_duration);
   chunking_params.low_latency_dash_mode =
